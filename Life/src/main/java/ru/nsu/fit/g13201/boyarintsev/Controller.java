@@ -1,4 +1,4 @@
-package ru.nsu.graphic;
+package ru.nsu.fit.g13201.boyarintsev;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -6,15 +6,19 @@ import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
+import java.net.URL;
 import java.util.Scanner;
 
 public class Controller {
+
+
     enum Mode
     {
         xor,
         replace
     }
-    private final static String DATA_PATH = "E:\\NSU\\Graphic\\Life\\Resources\\FIT_13201_Boyarintsev_Life_Data";
+    private final static Dimension paramDimension = new Dimension(530,140);
+    private final static String DATA_PATH = ".\\Resources\\FIT_13201_Boyarintsev_Life_Data";
     private final static Integer WEIGHT_MIN = 1;
     private final static Integer WEIGHT_MAX = 10;
     private final static Integer CELL_SIZE_MIN = 15;
@@ -73,6 +77,11 @@ public class Controller {
     }
     
     public Controller() {
+        File file = new File(DATA_PATH);
+        if (!file.exists()||!file.isDirectory())
+        {
+            file.mkdir();
+        }
         field = new Field(20,20);
         gui = new GUI(field,this);
         fieldPanel = gui.getFieldPanel();
@@ -138,7 +147,10 @@ public class Controller {
     public void param() {
         JDialog jFrame = new JDialog();
         jFrame.setLocation(200, 200); //TODO: FIX IT
-        jFrame.setSize(new Dimension(530, 150));
+        //jFrame.setSize(paramDimension);
+        jFrame.setPreferredSize(paramDimension);
+        jFrame.setMinimumSize(paramDimension);
+        //jFrame.setMaximumSize(paramDimension);
         jFrame.setLayout(new FlowLayout());
 
         Point p = FieldSize(jFrame);
@@ -341,14 +353,17 @@ public class Controller {
         panel.setVisible(true);
         return new Point(start.x + cellPropertiesLabel.getWidth(),start.y);
     }
-    public void about()
-    {
-        JDialog dialog = new JDialog();
-        dialog.add(new Label("This is the life from FIT!"));
-        dialog.setVisible(true);
-        dialog.setSize(dialog.getPreferredSize());
-        dialog.setLocation(500,300);
+    public void about() {
+        String v = "Это Игра жизнь разработана на\n";
+        v += "Факультете Информационных технологий НГУ\n";
+        v += "В игре есть какое то наличие живых и мертвых клеток\n";
+        v += "Этот атрибут клетки определяется на каждой итерации(каждому году жизни)\n";
+        v += "Нажимая мышкой на клетку вы можете менять ее состояние\n";
+        v = v + "Версия 1.0\n";
+        v = v + "(c) Бояринцев Артем\n";
+        JOptionPane.showMessageDialog(null, v);
     }
+
     private void settingSize(java.awt.Component component,Point start)  {
         Dimension sizeFstImpact = component.getPreferredSize();
         Point fstImpactPosition = new Point(start.x,start.y);
@@ -481,7 +496,7 @@ public class Controller {
             {
                 int i = sc.nextInt(); // по X
                 int j = sc.nextInt(); // по Y
-                field.setCageAlive(j,i);
+                field.setCageAlive(i,j);
             }
             gui.setField(field);
             sc.close();

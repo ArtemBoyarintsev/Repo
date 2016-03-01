@@ -1,4 +1,4 @@
-package ru.nsu.graphic;
+package ru.nsu.fit.g13201.boyarintsev;
 
 import javax.swing.*;
 import java.awt.*;
@@ -93,7 +93,6 @@ public class FieldPanel extends JPanel {
         {
             startOffsetOnX = (i%2 == 0 ? evenXStart: notEvenXStart);
             int k = i%2;
-
             for (int j = 0; j < cages[i].length - k; ++j )
             {
                 BufferedImage image = (cages[i][j].alive ? liveCage:deadCage);
@@ -245,24 +244,22 @@ public class FieldPanel extends JPanel {
             }
         }
     }
+    /* */
     class Span
     {
         public int xStart,xEnd,y;
     }
-    private void findBorders(BufferedImage image,int borderColor,Span span,int y)
+    private void findBorders(BufferedImage image,int borderColor,Span span,Point seed)
     {
-        boolean flag =false;
-        int i=0;
-        while(i<image.getWidth()&&(image.getRGB(i,y) == borderColor||!flag))
+        int y = seed.y;
+        int i= seed.x;
+        while(i>0 &&(image.getRGB(i,y) != borderColor))
         {
-            if (image.getRGB(i,y)==borderColor)
-            {
-                flag = true;
-            }
-            ++i;
+            --i;
         }
-        span.xStart = i-1;
-        for (; i<image.getWidth()&&image.getRGB(i,y) != borderColor;++i)
+        span.xStart = i > 0 ? i :0;
+        i = seed.x;
+        for (; i<image.getWidth() && image.getRGB(i,y) != borderColor;++i)
         {
             span.xEnd = i+1;
         }
@@ -281,7 +278,7 @@ public class FieldPanel extends JPanel {
     private Span getSpanBySeed(BufferedImage image,Point seed,int borderColor)
     {
         Span ret =new Span();
-        findBorders(image,borderColor,ret,seed.y);
+        findBorders(image,borderColor,ret,seed);
         ret.y = seed.y;
         return ret;
     }
@@ -304,7 +301,7 @@ public class FieldPanel extends JPanel {
     private void addSpans(BufferedImage image,Stack<Span> spanList,Span current,int borderColor,int color)
     {
         for(int y = current.y-1;y<=current.y+1;y+=2) {
-
+            boolean flag = true;
             if (y < 0 || y >= image.getHeight())
             {
                 continue;
@@ -319,7 +316,9 @@ public class FieldPanel extends JPanel {
                         continue;
                     }
                     x = span.xEnd = getRightBorder(image, x, y, borderColor);
-                    spanList.add(span);
+                    if (flag)
+                        spanList.add(span);
+                    flag = !flag;
                 }
             }
         }

@@ -1,4 +1,4 @@
-package ru.nsu.graphic;
+package ru.nsu.fit.g13201.boyarintsev;
 
 import java.util.Observable;
 
