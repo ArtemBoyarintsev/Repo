@@ -86,9 +86,9 @@ public class ImagePanel extends JPanel {
         }
         int[][] ar = field.getBitMap();
         BufferedImage image = new BufferedImage(pixelSize*field.getWidth(),pixelSize*field.getHeight(),BufferedImage.TYPE_4BYTE_ABGR);
-        for (int i =0 ; i <  ar.length; i += 1)
+        for (int i =0 ; i <  ar.length && i < field.getWidth(); i += 1)
         {
-            for(int j = 0; j <  ar[i].length; j += 1)
+            for(int j = 0; j <  ar[i].length && j < field.getHeight(); j += 1)
             {
                 image.setRGB(i,j,ar[i][j]);
             }
@@ -104,18 +104,58 @@ public class ImagePanel extends JPanel {
         if (image.getHeight() > imageZoneSize.height  || image.getWidth() > imageZoneSize.width ) {
             float k1 = ((float) imageZoneSize.width) / image.getWidth();
             float k2 = ((float) imageZoneSize.height) / (image.getHeight());
-            if (k1 < k2) {
+            if (k1 < k2 && k1 < 1.0) {
                 scaledCof[0] = imageZoneSize.width;
                 scaledCof[1] = image.getWidth();
-            } else {
+            } else if (k2 < 1.0) {
                 scaledCof[0]= imageZoneSize.height;
                 scaledCof[1] = image.getHeight();
             }
-            return (image.getScaledInstance(image.getWidth()*scaledCof[0]/scaledCof[1], image.getHeight() * (scaledCof[0]) /scaledCof[1], Image.SCALE_SMOOTH));
+            return superSampling(image,scaledCof);
+            //return (image.getScaledInstance(image.getWidth()*scaledCof[0]/scaledCof[1], image.getHeight() * (scaledCof[0]) /scaledCof[1], Image.SCALE_SMOOTH));
         }
         scaledCof[0] = 1;
         scaledCof[1] = 1;
         return image;
+    }
+
+    private BufferedImage superSampling(BufferedImage image, int[] scaledCof)
+    {
+        BufferedImage retImage = new BufferedImage(paneSize.width,paneSize.height,BufferedImage.TYPE_4BYTE_ABGR);
+        for (int i = 0; i < paneSize.width;++i)
+        {
+            for (int j = 0; j < paneSize.height;++j)
+            {
+                int red = 0;
+                int green = 0;
+                int blue = 0;
+                int count = 0;
+                for (int x = scaledCof[1]*i/scaledCof[0]; x < scaledCof[1]*(i+1)/scaledCof[0];++x)
+                {
+                    for (int y = scaledCof[1]*j/scaledCof[0]; y < scaledCof[1]*(j+1)/scaledCof[0];++y)
+                    {
+                        if (x >= image.getWidth() || y >= image.getHeight())
+                        {
+                            continue;
+                        }
+                        Color c = new Color(image.getRGB(x,y));
+                        red += c.getRed();
+                        green +=c.getGreen();
+                        blue += c.getBlue();
+                        count++;
+                    }
+                }
+                if (count == 0)
+                {
+                    continue;
+                }
+                red /= count;
+                green /= count;
+                blue /= count;
+                retImage.setRGB(i,j,new Color(red,green,blue).getRGB());
+            }
+        }
+        return retImage;
     }
     public void addSquare(Point start,Point finish)
     {

@@ -212,7 +212,8 @@ class DitherFSFilter implements Filter
         gui = controller.getGui();
     }
 
-    public void apply() {
+    public void apply()
+    {
         createDitherMenu(new OkCancelPressed(gui.getFieldOfConvertedImage(), controller, new Runnable() {
             public void run() {
                 try {
@@ -285,11 +286,12 @@ class DitherFSFilter implements Filter
 
         for (int i = 0 ; i < bitmapOfConvertedImage.length;++i)
         {
-            for(int j = 0 ; j < bitmapOfConvertedImage[i].length;++j)
+            System.arraycopy(bitmap[i],0,bitmapOfConvertedImage[i],0,bitmapOfConvertedImage[i].length);
+            /*for(int j = 0 ; j < bitmapOfConvertedImage[i].length;++j)
             {
-                System.arraycopy(bitmap[i],0,bitmapOfConvertedImage[i],0,bitmapOfConvertedImage[i].length);
+
                 bitmapOfConvertedImage[i][j] = bitmap[i][j];
-            }
+            }*/
         }
         for(int i=1;i<width-1;i++)
         {
@@ -300,13 +302,14 @@ class DitherFSFilter implements Filter
         }
         gui.setFieldOfConvertedImage(new Field(bitmapOfConvertedImage,width,height));
     }
+
     private void addErrors(int[][] bitmapOfConvertedImage,int i,int j,int errorRed,int errorGreen,int errorBlue)
     {
         {
             Color c = new Color(bitmapOfConvertedImage[i + 1][j]);
-            int finalRed = c.getRed() + 4 * errorRed / 16;
-            int finalGreen = c.getGreen() +4 * errorGreen / 16;
-            int finalBlue = c.getBlue() + 4 * errorBlue / 16;
+            int finalRed = c.getRed() + 7 * errorRed / 16;
+            int finalGreen = c.getGreen() +7 * errorGreen / 16;
+            int finalBlue = c.getBlue() + 7 * errorBlue / 16;
 
             if (finalBlue > 255)
                 finalBlue = 255;
@@ -324,9 +327,9 @@ class DitherFSFilter implements Filter
         }
         {
             Color c = new Color(bitmapOfConvertedImage[i - 1][j+1]);
-            int finalRed = c.getRed() + 4 * errorRed / 16;
-            int finalGreen = c.getGreen() + 4 * errorGreen / 16;
-            int finalBlue = c.getBlue() +  4* errorBlue / 16;
+            int finalRed = c.getRed() + 3 * errorRed / 16;
+            int finalGreen = c.getGreen() + 3 * errorGreen / 16;
+            int finalBlue = c.getBlue() +  3* errorBlue / 16;
 
             if (finalBlue > 255)
                 finalBlue = 255;
@@ -344,9 +347,9 @@ class DitherFSFilter implements Filter
         }
         {
             Color c = new Color(bitmapOfConvertedImage[i ][j+1]);
-            int finalRed = c.getRed() + 4 * errorRed / 16;
-            int finalGreen = c.getGreen() + 4 * errorGreen / 16;
-            int finalBlue = c.getBlue() + 4 * errorBlue / 16;
+            int finalRed = c.getRed() + 5 * errorRed / 16;
+            int finalGreen = c.getGreen() + 5 * errorGreen / 16;
+            int finalBlue = c.getBlue() + 5 * errorBlue / 16;
 
             if (finalBlue > 255)
                 finalBlue = 255;
@@ -369,9 +372,9 @@ class DitherFSFilter implements Filter
         }
         {
             Color c = new Color(bitmapOfConvertedImage[i + 1][j+1]);
-            int finalRed = c.getRed() + 4* errorRed / 16;
-            int finalGreen = c.getGreen() + 4* errorGreen / 16;
-            int finalBlue = c.getBlue() + 4*errorBlue / 16;
+            int finalRed = c.getRed() + 1* errorRed / 16;
+            int finalGreen = c.getGreen() + 1* errorGreen / 16;
+            int finalBlue = c.getBlue() +1*errorBlue / 16;
 
             if (finalBlue > 255)
                 finalBlue = 255;
@@ -385,7 +388,7 @@ class DitherFSFilter implements Filter
                 finalRed = 255;
             if (finalRed < 0)
                 finalRed = 0;
-            bitmapOfConvertedImage[i  + 1][j + 1 ] = new Color(finalRed, finalGreen, finalBlue).getRGB();
+            bitmapOfConvertedImage[i  +  1][j  +  1] = new Color(finalRed, finalGreen, finalBlue).getRGB();
         }
     }
 
@@ -402,14 +405,14 @@ class DitherFSFilter implements Filter
         int newBlue = getClosestColor(blue,bluePalette);
         int errorBlue = blue - newBlue ;
         addErrors(bitmapOfConvertedImage,i,j,errorRed,errorGreen,errorBlue);
+        bitmapOfConvertedImage[i][j] = new Color(newRed,newGreen,newBlue).getRGB();
     }
 
     private int getClosestColor(int color,int paletteLevel)
     {
         int step = 255/(paletteLevel-1);
         int closest = color/step;
-
-        if (color -closest*step < (closest+1)*(step) - color)
+        if (color - closest * step < (closest+1)*(step) - color)
         {
             return closest*step;
         }
@@ -490,7 +493,7 @@ class PowerTwoFilter implements Filter
         int[][] bitmapOfConvertedImage = new int[width][height];
         for (int i = width/4; i < 3 * width / 4;++i)
         {
-            for(int j =  height/4; j < 3*height/4; ++j)
+            for(int j =  height/4; j < 3*(height-height%2)/4; ++j)
             {
                 setInterpolInBitmapOfConverted(bitmap,bitmapOfConvertedImage,i,j,width/4,height/4);
             }
@@ -505,6 +508,7 @@ class PowerTwoFilter implements Filter
         int c4 = bitmap[i+1][j+1];
         i = i - iStart;
         j = j - jStart;
+
         bitmapOfConverted[2*i][2*j] = c1;
         bitmapOfConverted[2*i][2*j+1] = getMedium(c1, c2);
         bitmapOfConverted[2*i+1][2*j] = getMedium(c1,c3);
@@ -919,6 +923,7 @@ public class Controller {
             });
             return;
         }
+        clear();
         openFile();
     }
 
